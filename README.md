@@ -1,66 +1,85 @@
 # SQLAlchemy Homework - Surfs Up!
 
-### Before You Begin
-
-1. Create a new repository for this project called `sqlalchemy-challenge`. **Do not add this homework to an existing repository**.
-
-2. Clone the new repository to your computer.
-
-3. Add your Jupyter notebook and `app.py` to this folder. These will be the main scripts to run for analysis.
-
-4. Push the above changes to GitHub or GitLab.
-
-![surfs-up.png](Images/surfs-up.png)
-
-Congratulations! You've decided to treat yourself to a long holiday vacation in Honolulu, Hawaii! To help with your trip planning, you need to do some climate analysis on the area. The following outlines what you need to do.
-
-## Step 1 - Climate Analysis and Exploration
-
-To begin, use Python and SQLAlchemy to do basic climate analysis and data exploration of your climate database. All of the following analysis should be completed using SQLAlchemy ORM queries, Pandas, and Matplotlib.
-
-* Use the provided [starter notebook](climate_starter.ipynb) and [hawaii.sqlite](Resources/hawaii.sqlite) files to complete your climate analysis and data exploration.
-
-* Choose a start date and end date for your trip. Make sure that your vacation range is approximately 3-15 days total.
-
-* Use SQLAlchemy `create_engine` to connect to your sqlite database.
-
-* Use SQLAlchemy `automap_base()` to reflect your tables into classes and save a reference to those classes called `Station` and `Measurement`.
-
 ### Precipitation Analysis
 
 * Design a query to retrieve the last 12 months of precipitation data.
 
+```
+# Find last point in data to calculate 1 year ago
+lastpoint = session.query(measurement.date).order_by(measurement.date.desc()).first().date
+lastpoint
+lastpoint=dt.datetime.strptime(lastpoint, "%Y-%m-%d")
+
+# Calculate the date 1 year ago
+year_ago = dt.date(2017,8,23) - relativedelta(months=12)
+year_ago
+```
+
 * Select only the `date` and `prcp` values.
-
+```
+last12 = session.query(measurement.prcp, measurement.date).filter(measurement.date >= year_ago).all(
+```
 * Load the query results into a Pandas DataFrame and set the index to the date column.
-
 * Sort the DataFrame values by `date`.
+```
 
+prcp_df = pd.DataFrame(last12, columns=["prcp","date"])
+prcp_df['date'] = pd.to_datetime(prcp_df['date'])
+prcp_df.set_index('date', inplace=True)
+
+```
 * Plot the results using the DataFrame `plot` method.
+```
+prcp_df.plot()
+plt.savefig('Precipitation-Bar.png')
 
-  ![precipitation](Images/precipitation.png)
+```
+
+  ![precipitation](https://github.com/kmanning1224/sqlalchemy-challenge/blob/master/Precipitation-Bar.png?raw=true)
 
 * Use Pandas to print the summary statistics for the precipitation data.
+```
+prcp_df.describe()
+
+```
+![summarystatistics](https://i.gyazo.com/cfd8c30e7ad3077c37074f9ca18d442f.png)
+
 
 ### Station Analysis
 
 * Design a query to calculate the total number of stations.
-
+```
+session.query(station.station).count()
+```
 * Design a query to find the most active stations.
+```
+topstations = session.query(measurement.station,func.count(measurement.station)).group_by(measurement.station).order_by(func.count(measurement.station).desc()).all()
+```
 
   * List the stations and observation counts in descending order.
-
+```
+session.query(func.min(measurement.tobs),func.avg(measurement.tobs),func.max(measurement.tobs),func.count(measurement.tobs)).filter(measurement.station == topstation1).all()
+```
   * Which station has the highest number of observations?
-
-  * Hint: You will need to use a function such as `func.min`, `func.max`, `func.avg`, and `func.count` in your queries.
+  
+  USC00519281
 
 * Design a query to retrieve the last 12 months of temperature observation data (TOBS).
-
   * Filter by the station with the highest number of observations.
+```
+last12station = session.query(measurement.tobs).filter(measurement.station == topstation1).filter(measurement.date >= year_ago).all()
 
+```
   * Plot the results as a histogram with `bins=12`.
+```
+stationdf = pd.DataFrame(last12station, columns = ["tobs"])
 
-    ![station-histogram](Images/station-histogram.png)
+stationdf.plot.hist(bins = 12)
+plt.xlabel('Temperature')
+plt.savefig('Histogram-Temp-Bonus.png')
+```
+
+ ![station-histogram](https://github.com/kmanning1224/sqlalchemy-challenge/blob/master/Histogram-Temp-Bonus.png?raw=true)
 
 - - -
 
