@@ -382,4 +382,4 @@ ax.legend(frameon=True, loc='lower center', ncol=3, shadow=True, borderpad=1)
 plt.figure(figsize=(15,10))
 plt.savefig('StackedChart-Bonus.png')
 ```
-!stackedchart](https://github.com/kmanning1224/sqlalchemy-challenge/blob/master/StackedChart-Bonus.png)
+![stackedchart](https://github.com/kmanning1224/sqlalchemy-challenge/blob/master/StackedChart-Bonus.png)
